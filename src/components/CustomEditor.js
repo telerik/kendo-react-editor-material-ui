@@ -1,23 +1,12 @@
 import React from 'react';
-import * as ReactDOM from 'react-dom';
 
 import { Toolbar, ToolbarItem, ButtonGroup } from '@progress/kendo-react-buttons';
 import '@progress/kendo-theme-material/dist/all.css';
 
 import {
   EditorUtils, EditorDialogs,
-  EditorToolsSettings, ProseMirror, EditorTools
+  EditorToolsSettings, ProseMirror
 } from '@progress/kendo-react-editor';
-
-//Material UI
-import Button from '@material-ui/core/Button';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogActions  from '@material-ui/core/DialogActions';
-import DialogContentText  from '@material-ui/core/DialogContentText';
-import UndoIcon from '@material-ui/icons/Undo';
-import RedoIcon from '@material-ui/icons/Redo';
 
 export default class CustomEditor extends React.Component {
 

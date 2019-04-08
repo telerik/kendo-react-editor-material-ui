@@ -1,19 +1,9 @@
 import React from 'react';
 import './App.css';
-import * as ReactDOM from 'react-dom';
 
-import { Toolbar, ToolbarItem, ButtonGroup } from '@progress/kendo-react-buttons';
 import '@progress/kendo-theme-material/dist/all.css';
 
-import {
-  EditorUtils, EditorDialogs,
-  EditorToolsSettings, ProseMirror, EditorTools
-} from '@progress/kendo-react-editor';
-
-//Material UI
-import Button from '@material-ui/core/Button';
-import UndoIcon from '@material-ui/icons/Undo';
-import RedoIcon from '@material-ui/icons/Redo';
+import { EditorTools } from '@progress/kendo-react-editor';
 
 import CustomEditor from '../src/components/CustomEditor';
 import ViewHtml from '../src/components/CustomViewHtml';
