@@ -1,21 +1,20 @@
 import React from 'react';
+import Toolbar from '@material-ui/core/Toolbar';
 
-import { Toolbar, ToolbarItem, ButtonGroup } from '@progress/kendo-react-buttons';
-import '@progress/kendo-theme-material/dist/all.css';
+import { EditorUtils } from '@progress/kendo-react-editor';
 
-import {
-  EditorUtils, EditorDialogs,
-  EditorToolsSettings, ProseMirror
-} from '@progress/kendo-react-editor';
+import { EditorState, Plugin } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
+import { Schema } from 'prosemirror-model';
+import { keymap } from 'prosemirror-keymap';
+import { baseKeymap } from 'prosemirror-commands';
+import { history } from 'prosemirror-history';
+import { dropCursor } from 'prosemirror-dropcursor';
+import { gapCursor } from 'prosemirror-gapcursor';
 
 export default class CustomEditor extends React.Component {
-
-    state = {
-        view: undefined,
-        linkDialog: false
-    };
-
-    _contentElement;
+    state = { view: undefined };
+    contentElement;
 
     componentDidMount() {
         this.initialize();
@@ -29,115 +28,63 @@ export default class CustomEditor extends React.Component {
     }
 
     render() {
-        const { tools = CustomEditor.defaultProps.tools } = this.props;
-        const buttons = tools.map((item, index) =>
-            Array.isArray(item) ?
-                <ButtonGroup>{item.map(this.renderTool, index)}</ButtonGroup> :
-                this.renderTool(item, index));
+        const { tools = [] } = this.props;
 
         return (
-            <div
-                className="k-widget k-editor"
-            >
+            <div>
                 <Toolbar>
-                    {buttons.map((item, i) => <ToolbarItem className="k-tool-group" key={i}>{item}</ToolbarItem>)}
+                    {tools.map((Tool, idx) => <Tool view={this.state.view} key={idx} />)}
                 </Toolbar>
-                {(<div
-                    style={{
-                        height: '300px'
-                    }}
-                    className="k-content"
-                >
-                    <div
-                        ref={e => this._contentElement = e}
-                        style={{
-                            boxSizing: 'border-box',
-                            overflowY: 'scroll',
-                            padding: '0 4px'
-                        }}
-                        className="k-editable-area"
-                        suppressContentEditableWarning={true}
-                    />
-                </div>)}
-                {this.renderDialog(EditorDialogs.InsertLinkDialog, EditorToolsSettings.link, 'linkDialog')}
+                <div
+                    ref={e => this.contentElement = e}
+                    className="editor-content"
+                    suppressContentEditableWarning={true}
+                />
             </div>
-        );
-    }
-
-    renderDialog = (Component, settings, stateFlag) => {
-        return this.state[stateFlag] && (
-            <Component
-                view={this.state.view}
-                settings={settings}
-                onClose={() => this.setState({ [stateFlag]: false })}
-            />
-        );
-    }
-
-    renderTool = (Tool, index) => {
-        return (
-            <Tool
-                view={this.state.view}
-                key={index}
-            />
         );
     }
 
     // Here you can change anything of the Editor engine.
     initialize() {
-        const { defaultContent = CustomEditor.defaultProps.defaultContent } = this.props;
-        const schema = new ProseMirror.Schema({ nodes: EditorUtils.nodes, marks: EditorUtils.marks });
+        const { defaultContent = '' } = this.props;
+        const schema = new Schema({ nodes: EditorUtils.nodes, marks: EditorUtils.marks });
         const doc = EditorUtils.createDocument(schema, defaultContent);
-        const state = ProseMirror.EditorState.create({ doc, plugins: this.plugins });
-        const view = new ProseMirror.EditorView({ mount: this._contentElement }, {
-            state,
+        const view = new EditorView({ mount: this.contentElement }, {
+            state: EditorState.create({ doc, plugins: this.plugins }),
             transformPastedHTML: this.onPasteHtml
         });
 
-        this.setState({
-            view: view
-        });
+        this.setState({ view });
     }
 
     get plugins() {
-        let shortcuts = {
-            ...EditorUtils.getShortcuts(),
-            'Mod-k': () => {
-                const { linkDialog } = this.state;
-                if (!linkDialog) {
-                    this.setState({ linkDialog: true });
-                }
-                return !linkDialog;
-            }
-        };
-
         return [
-            new ProseMirror.Plugin({
+            new Plugin({
                 view: () => ({ update: editorView => this.setState({ view: editorView }) }),
                 filterTransaction: (tr, editorState) => {
                     if (tr.docChanged) {
-                        window.console.log('document is changed');
+                        console.log('document is changed');
                     }
 
-                    if (!tr.curSelection.eq(editorState.selection)) {
-                        window.console.log('selection is changed');
+                    if (!tr.selection.eq(editorState.selection)) {
+                        console.log('selection is changed');
                     }
 
                     // Returning false will prevent the change
                     return true;
                 }
             }),
-            ProseMirror.history(),
-            ProseMirror.dropCursor(),
-            ProseMirror.gapCursor(),
-            ProseMirror.keymap(shortcuts),
-            ProseMirror.keymap(ProseMirror.baseKeymap)
+            history(),
+            dropCursor(),
+            gapCursor(),
+            keymap(EditorUtils.getShortcuts()),
+            keymap(baseKeymap)
             // Add your custom plugin here.
         ];
     }
 
     onPasteHtml = (html) => {
-        window.console.log(html);
+        console.log(html);
 
         // Here you can modify and return the pasted HTML.
         return html;
