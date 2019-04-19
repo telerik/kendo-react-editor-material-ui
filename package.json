@@ -11,7 +11,9 @@
     "@progress/kendo-react-editor": "^2.8.0",
     "@progress/kendo-react-intl": "^2.8.0",
     "react": "^16.8.4",
-    "react-dom": "^16.8.4",
+    "react-dom": "^16.8.4"
+  },
+  "devDependencies": {
     "react-scripts": "2.1.8"
   },
   "scripts": {
